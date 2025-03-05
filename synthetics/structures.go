@@ -239,6 +239,7 @@ func buildDowntimeConfigurationV2Data(d *schema.ResourceData) sc2.DowntimeConfig
 			}
 			downtimeConfigurationV2.DowntimeConfiguration.Endtime = endTime
 			downtimeConfigurationV2.DowntimeConfiguration.Testids = buildTestIdData(downtimeConfiguration["test_ids"].([]interface{}))
+			downtimeConfigurationV2.DowntimeConfiguration.Recurrence = buildRecurrenceData(downtimeConfiguration["recurrence"].(*schema.Set))
 			i++
 		}
 	}
@@ -1466,6 +1467,78 @@ func buildTestIdData(d []interface{}) []int {
 		testsList[i] = tests.(int)
 	}
 	return testsList
+}
+
+func buildRecurrenceData(recurrence *schema.Set) sc2.Recurrence {
+	var recurrenceData sc2.Recurrence
+
+	as_list := recurrence.List()
+	if len(as_list) > 0 {
+		as_map := as_list[0].(map[string]interface{})
+
+		if repeatsPtr := buildRepeatsData(as_map["repeats"].(*schema.Set)); repeatsPtr != nil {
+			recurrenceData.Repeats = *repeatsPtr
+		}
+		if endPtr := buildEndData(as_map["end"].(*schema.Set)); endPtr != nil {
+			recurrenceData.End = *endPtr
+		}
+
+	}
+	return recurrenceData
+}
+
+func buildRepeatsData(repeats *schema.Set) *sc2.Repeats {
+	repeatsList := repeats.List()
+
+	if len(repeatsList) > 0 {
+		repeatsMap := repeatsList[0].(map[string]interface{})
+		repeatsData := &sc2.Repeats{
+			Type: repeatsMap["type"].(string),
+		}
+
+		if customValue, ok := getIntFromMap(repeatsMap, "custom_value"); ok {
+			repeatsData.Customvalue = customValue
+		}
+
+		if customFrequency, ok := getStringFromMap(repeatsMap, "custom_frequency"); ok {
+			repeatsData.Customfrequency = customFrequency
+		}
+
+		return repeatsData
+	}
+	return nil
+}
+
+func buildEndData(end *schema.Set) *sc2.End {
+	endList := end.List()
+
+	if len(endList) > 0 {
+		endMap := endList[0].(map[string]interface{})
+		endData := &sc2.End{
+			Type:  endMap["type"].(string),
+			Value: endMap["value"].(string),
+		}
+		return endData
+	}
+	return nil
+}
+
+func getStringFromMap(dataMap map[string]interface{}, key string) (string, bool) {
+	if val, ok := dataMap[key]; ok {
+		if strVal, isString := val.(string); isString {
+			return strVal, true
+		}
+	}
+	return "", false
+}
+
+func getIntFromMap(dataMap map[string]interface{}, key string) (int, bool) {
+	if val, ok := dataMap[key]; ok {
+		if intVal, isInt := val.(int); isInt {
+			return intVal, true
+		}
+	}
+	return 0, false
 }
 
 func buildRequestsData(requests []interface{}) []sc2.Requests {

@@ -78,6 +78,50 @@ func dataSourceDowntimeConfigurationV2() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"recurrence": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"repeats": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"type": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"custom_value": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"custom_frequency": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"end": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"type": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
