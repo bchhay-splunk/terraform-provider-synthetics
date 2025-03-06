@@ -336,6 +336,49 @@ func flattenDowntimeConfigurationsV2Data(downtimeConfigurations *[]sc2.DowntimeC
 	return make([]interface{}, 0)
 }
 
+func flattenRecurrenceData(recurrenceData *sc2.Recurrence) []interface{} {
+	recurrence := make(map[string]interface{})
+
+	if recurrenceData.Repeats != nil {
+		recurrence["repeats"] = flattenRepeatsData(recurrenceData.Repeats)
+	}
+
+	if recurrenceData.End != nil {
+		recurrence["end"] = flattenEndData(recurrenceData.End)
+	}
+
+    return []interface{}{recurrence}
+}
+
+func flattenRepeatsData(repeatsData *sc2.Repeats) []interface{} {
+	repeats := make(map[string]interface{})
+
+	if repeatsData.Type != "" {
+		repeats["username"] = repeatsData.Type
+	}
+	if repeatsData.Customvalue != 0 {
+		repeats["password"] = repeatsData.Customvalue
+	}
+	if repeatsData.Customfrequency != "" {
+		repeats["password"] = repeatsData.Customfrequency
+	}
+
+	return []interface{}{repeats}
+}
+
+func flattenEndData(endData *sc2.Repeats) []interface{} {
+	end := make(map[string]interface{})
+
+	if endData.Type != "" {
+		end["type"] = endData.Type
+	}
+	if endData.Customvalue != 0 {
+		end["value"] = endData.Value
+	}
+
+	return []interface{}{end}
+}
+
 func flattenDevicesV2Data(devices *[]sc2.Device) []interface{} {
 	if devices != nil {
 		cls := make([]interface{}, len(*devices))
